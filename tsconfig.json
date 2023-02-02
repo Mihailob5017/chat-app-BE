@@ -5,12 +5,13 @@
     "pretty": true,
     "resolveJsonModule": true,
     "sourceMap": true,
+    "esModuleInterop": true,
     "target": "es2021",
     "outDir": "./dist",
     "baseUrl": "./src",
     "experimentalDecorators": true,
     "strict": true
   },
-  "include": ["src/**/*.ts", "test/**/*.spec.ts"],
+  "include": ["src/*.ts"],
   "exclude": ["node_modules"]
 }
