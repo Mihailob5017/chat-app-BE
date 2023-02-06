@@ -3,8 +3,8 @@ export interface YupMessageInterface {
 }
 export interface ResponseParams {
   user: {
-    username: any;
-    password: any;
+    username: string;
+    password: string;
   } | null;
   success: boolean;
   error: {

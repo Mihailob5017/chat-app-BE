@@ -1,5 +1,6 @@
 import { ResponseParams } from './types';
-export const formatResponse = (dataOrError: any): ResponseParams | null => {
+import { PrismaClient } from '@prisma/client';
+export const formatResponse = (dataOrError: any): ResponseParams => {
   if (dataOrError.type) {
     return {
       user: null,
@@ -20,3 +21,5 @@ export const formatResponse = (dataOrError: any): ResponseParams | null => {
     error: null,
   };
 };
+
+export const prisma: PrismaClient = new PrismaClient();
