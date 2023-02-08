@@ -5,7 +5,10 @@ import { Request, Response } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import authRouter from './router/authRouter';
+import session from 'express-session';
+import { SameSightInterface } from './helpers/types';
 
+// Config
 dotenv.config();
 const app = express();
 const server = require('http').createServer(app);
@@ -15,15 +18,39 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
+const cookieSecret: string = process.env.COOKIE_SECRET || 'secret';
+const sameSightConstant =
+  process.env.ENVIROMENT === 'production' ? 'none' : 'lax';
+// Middleware
 app.use(helmet());
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: process.env.URL,
+  }),
+);
+app.use(
+  session({
+    saveUninitialized: false,
+    resave: false,
+    name: 'sid',
+    secret: cookieSecret,
+    cookie: {
+      secure: process.env.ENVIROMENT === 'production',
+      httpOnly: true,
+      sameSite: sameSightConstant,
+    },
+  }),
+);
 app.get('/', (_req: Request, res: Response): void => {
   res.send('hi');
 });
+
+// Routes
 app.use('/auth', authRouter);
 
+// Socket.io
 io.on('connect', (socket) => {});
 server.listen(4001, (): void => {
   console.log('Server listening on port 4001');
