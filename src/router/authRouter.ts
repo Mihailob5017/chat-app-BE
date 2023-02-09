@@ -35,45 +35,57 @@ authRouter.post('/signup', async (req, res): Promise<void> => {
   res.send(data);
   return;
 });
-authRouter.post('/login', async (req, res): Promise<void> => {
-  const data = await validateForm(req);
-  if (data.user) {
-    const userFound = await prisma.users.findUnique({
-      where: { username: data.user.username },
-    });
-    if (userFound) {
-      const passwordMatch = await bcrypt.compare(
-        data.user.password,
-        userFound.passHash,
-      );
-      if (passwordMatch) {
-        req.session.user = {
-          username: data.user.username,
-          id: `id_${userFound.id}`,
-        };
-        res.send(data);
-        return;
+
+authRouter
+  .route('/login')
+  .get(async (req, res): Promise<void> => {
+    if (req.session.user && req.session.user.username !== undefined) {
+      res.send({ user: req.session.user, userLoggedIn: true });
+      return;
+    } else {
+      res.send({ user: null, userLoggedIn: false });
+      return;
+    }
+  })
+  .post(async (req, res): Promise<void> => {
+    const data = await validateForm(req);
+    if (data.user) {
+      const userFound = await prisma.users.findUnique({
+        where: { username: data.user.username },
+      });
+      if (userFound) {
+        const passwordMatch = await bcrypt.compare(
+          data.user.password,
+          userFound.passHash,
+        );
+        if (passwordMatch) {
+          req.session.user = {
+            username: data.user.username,
+            id: `id_${userFound.id}`,
+          };
+          res.send(data);
+          return;
+        } else {
+          data.success = false;
+          data.error = {
+            message: 'Incorrect password',
+            displayMessage: 'Incorrect password',
+          };
+          res.send(data);
+          return;
+        }
       } else {
         data.success = false;
         data.error = {
-          message: 'Incorrect password',
-          displayMessage: 'Incorrect password',
+          message: 'User not found',
+          displayMessage: 'User not found',
         };
         res.send(data);
         return;
       }
-    } else {
-      data.success = false;
-      data.error = {
-        message: 'User not found',
-        displayMessage: 'User not found',
-      };
-      res.send(data);
-      return;
     }
-  }
 
-  return;
-});
+    return;
+  });
 
 export default authRouter;

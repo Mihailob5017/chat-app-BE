@@ -6,7 +6,6 @@ import helmet from 'helmet';
 import cors from 'cors';
 import authRouter from './router/authRouter';
 import session from 'express-session';
-import { SameSightInterface } from './helpers/types';
 
 // Config
 dotenv.config();
@@ -37,6 +36,7 @@ app.use(
     name: 'sid',
     secret: cookieSecret,
     cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 7,
       secure: process.env.ENVIROMENT === 'production',
       httpOnly: true,
       sameSite: sameSightConstant,
