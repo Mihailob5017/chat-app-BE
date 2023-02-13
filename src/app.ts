@@ -4,8 +4,10 @@ import { Server } from 'socket.io';
 import { Request, Response } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import Redis from 'ioredis';
 import authRouter from './router/authRouter';
 import session from 'express-session';
+const RedisStore = require('connect-redis')(session);
 
 // Config
 dotenv.config();
@@ -17,6 +19,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
+const redis = new Redis();
 const cookieSecret: string = process.env.COOKIE_SECRET || 'secret';
 const sameSightConstant =
   process.env.ENVIROMENT === 'production' ? 'none' : 'lax';
@@ -33,6 +36,7 @@ app.use(
   session({
     saveUninitialized: false,
     resave: false,
+    store: new RedisStore({ client: redis }),
     name: 'sid',
     secret: cookieSecret,
     cookie: {
